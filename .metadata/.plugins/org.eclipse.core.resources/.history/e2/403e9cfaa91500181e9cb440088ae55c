@@ -1,0 +1,35 @@
+package challenge2;
+
+import java.time.Year;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Challenge2 {
+	
+	//Pattern p = Pattern.compile("\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|(Nov|Dec)(?:ember)?)\D?(\d{1,2}\D?)?\D?((19[7-9]\d|20\d{2})|\d{2})");//. represents single character
+	
+	
+	
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		/*Scanner scan = new Scanner (System.in);
+		int i;
+		
+		i=scan.nextInt();*/
+/*		String date = "Jan 99999 M";
+		if (date.length() > 14) {
+			System.out.println("AF");
+		}
+		System.out.println(date.substring(0, 3));
+		System.out.println(Year.parse((date.substring(4, 8)).subSequence(0, 4)));
+		Year year = Year.parse((date.substring(4, 8)).subSequence(0, 4));  */
+		
+		Pattern p = Pattern.compile("^(Jan?|Feb?|Mar?|Apr?|May?|Jun?|Jul?|Aug?|Sep?|Oct?|Nov?|Dec?) (\\d{4}|9{4})(/s)?$");
+		Matcher m = p.matcher("Jan 0000 ");  
+		System.out.println(m.matches());  
+				
+	}
+
+}

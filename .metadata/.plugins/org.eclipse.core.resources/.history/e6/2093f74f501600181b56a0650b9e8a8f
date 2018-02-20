@@ -1,0 +1,227 @@
+package assignment;
+
+import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Month;
+import java.time.Year;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+enum Months {
+	Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec;
+}
+
+enum Week {
+	Sun, Mon, Tue, Wed, Thu, Fri, Sat;
+}
+
+public class Problem {
+
+	/*
+	 * Pattern p = Pattern.
+	 * compile("^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)? (\\d{4}|9{4}) ([DM]|X?) (Mon|Tue|Wed|Thu|Fri|Sat|Sun)?$"
+	 * );
+	 * 
+	 * //Pattern p = Pattern.compile("^(?=.*(Jan) (\\d{4}|9{4}))(?=.*DOG).*$");
+	 * Matcher m = p.matcher("Jan 0000 D Mon"); System.out.println(m.matches());
+	 */
+	private static int intWeek;
+	private static String stringWeek;
+	
+	private static int intMonth;
+	private static String stringMonth;
+
+	private static int intYear;
+	private static String stringYear;
+
+	private static String inputDate;
+	private static Boolean isLeapYear;
+	
+	private static final String pattern = "dd MMMM yyyy";
+
+	public static void main(String[] args) {
+
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter the date - ");
+		// String inputDate = scan.nextLine();
+		scan.close();
+		inputDate = "Feb 2018 Tue";
+		// Jan 2018 Tue, Case 1
+		// Jan 2018 D, Case 0
+		// Jan 2018 X, Tue, case 2
+		// Jan 2018 M, Case 3
+
+		int validDate = validateDate();
+
+		switch (validDate) {
+
+		case 0:
+			multiplyDates();
+			break;
+
+		case 1:
+			multiplyDatesofDay();
+			break;
+
+		case 2:
+			multiplyDatesExcludeDay();
+			break;
+
+		case 3:
+			multiplyFullDate();
+			break;
+
+		case 4:
+			System.out.println("Invalid date format");
+
+		}
+
+	}
+
+	public static int validateDate() {
+
+		int inputStringLength = inputDate.length();
+		if (inputStringLength > 14) {
+			return 4;
+		} else {
+			try {
+				// split with single space as delimiter
+				String[] inputArray = inputDate.split("\\s");
+				// check if the month is correct
+				if (contains(inputArray[0])) {
+					intMonth = Months.valueOf(inputArray[0]).ordinal() + 1;
+					stringMonth = inputArray[0];
+					
+					// check if the year is correct. Assuming the year is 0000
+					// to 9999
+					Pattern p = Pattern.compile("^(\\d{4})$");
+					Matcher m = p.matcher(inputArray[1]);
+					System.out.println(m.matches());
+					if (m.matches()) {
+						stringYear = inputArray[1];
+						intYear = Integer.valueOf(inputArray[1]);
+						isLeapYear = isLeapYear(inputArray[1]);
+
+						Pattern p1 = Pattern.compile("^[MDX]$");
+						Matcher m1 = p1.matcher(inputArray[2]);
+						System.out.println(m1.matches());
+						if (m1.matches()) {
+
+							if (inputArray[2].equals("D") && inputStringLength == 10) {
+								return 0;
+							} else if (inputArray[2].equals("M") && inputStringLength == 10) {
+								return 3;
+							} else if (inputArray[2].equals("X") && containsWeek(inputArray[3])
+									&& inputStringLength == 14) {
+								return 2;
+							} else
+								return 4;
+						} else if (containsWeek(inputArray[2]) && inputStringLength == 12) {
+							intWeek = Week.valueOf(inputArray[2]).ordinal() + 1;
+							stringWeek = inputArray[2];
+							return 1;
+						}
+
+					} else {
+						return 4;
+					}
+				} else {
+					return 4;
+				}
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+				return 4;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return 4;
+			}
+		}
+		return 4;
+	}
+
+	public static Boolean isLeapYear(String inputDate) {
+		return Year.of(Integer.parseInt(inputDate)).isLeap();
+	}
+
+	public static void multiplyDates() {
+		Month month = Month.of(intMonth);
+		int days = month.length(isLeapYear);
+		BigInteger output = new BigInteger("1");
+		BigInteger multiplier = BigInteger.ONE;
+		System.out.println("Total Number of days: " + days);
+		for (int i = 1; i <= days; i++) {
+			multiplier = BigInteger.valueOf(i);
+			output = output.multiply(multiplier);
+		}
+		System.out.println("Outut - " + output);
+	}
+
+	public static void multiplyDatesofDay() {
+		System.out.println("Case 1");
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MONTH, intMonth);
+		cal.set(Calendar.YEAR, intYear);
+		Month month = Month.of(intMonth);
+		int days = month.length(isLeapYear);
+		int day=0;
+		Date date = null;
+		String myDate = null;
+		
+		DateFormat format = new SimpleDateFormat(pattern);
+		
+		for(int i= 1;i<=days;i++)
+		{
+			// Adding day of month in Calendar.
+			cal.set(Calendar.DAY_OF_MONTH, i);
+			if (cal.get(Calendar.DAY_OF_WEEK) == intWeek)
+			{
+				date = cal.getTime();
+				myDate = format.format(date);
+				day=Integer.valueOf(myDate.substring(0, 2));
+				day=day*day;
+			}
+		}
+		System.out.println(day);
+
+	}
+
+	public static void multiplyDatesExcludeDay() {
+		System.out.println("Case 2");
+	}
+
+	public static void multiplyFullDate() {
+		System.out.println("Case 3");
+	}
+
+	public static boolean contains(String test) {
+
+		for (Months c : Months.values()) {
+			if (c.name().equals(test)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean containsWeek(String test) {
+
+		for (Week c : Week.values()) {
+			if (c.name().equals(test)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/*
+	 * import java.time.*; public class MonthEnumExample5 { public static void
+	 * main(String[] args) { Month month = Month.from(LocalDate.now());
+	 * System.out.println("Total Number of days: "+month.length(true)); } }
+	 */
+}
